@@ -49,11 +49,19 @@ async def login_one(email, password):
 
         try:
             await page.goto(LOGIN_URL)
-            await page.wait_for_selector('input[name="Email Address"]')
 
-            await page.fill('input[name="Email Address"]', email)
-            await page.fill('input[name="Password"]', password)
-           await page.locator('button', has_text="Login").click()
+            # ====== 邮箱输入 ======
+            # 尝试通过 placeholder 或 name 匹配
+            email_selector = 'input[placeholder*="Email"], input[name="Email Address"], input[type="email"]'
+            await page.wait_for_selector(email_selector)
+            await page.fill(email_selector, email)
+
+            # ====== 密码输入 ======
+            await page.fill('input[type="Password"]', password)
+
+            # ====== 登录按钮 ======
+            # 使用文字定位 Login 按钮
+            await page.click('button:has-text("Login")')
             await page.wait_for_timeout(5000)
 
             current_url = page.url
