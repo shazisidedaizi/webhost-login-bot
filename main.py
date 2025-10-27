@@ -45,32 +45,41 @@ async def login_one(email, password):
         context = await browser.new_context()
         page = await context.new_page()
         page.set_default_timeout(60000)
-        result = {"email": email, "success": False}
+        result = {"email": email, "success": False, "expire": None}
 
         try:
             await page.goto(LOGIN_URL)
 
-            # ====== 邮箱输入 ======
-            # 尝试通过 placeholder 或 name 匹配
+            # ===== 邮箱输入 =====
             email_selector = 'input[placeholder*="Email"], input[name="Email Address"], input[type="email"]'
             await page.wait_for_selector(email_selector)
             await page.fill(email_selector, email)
 
-            # ====== 密码输入 ======
+            # ===== 密码输入 =====
             await page.fill('input[type="Password"]', password)
 
-            # ====== 登录按钮 ======
-            # 使用文字定位 Login 按钮
+            # ===== 登录按钮 =====
             await page.click('button:has-text("Login")')
             await page.wait_for_timeout(5000)
 
             current_url = page.url
             if "dashboard" in current_url or "clientarea" in current_url:
                 result["success"] = True
+
+                # ===== 抓取过期时间 =====
+                try:
+                    locator = page.locator("text=Time until suspension")
+                    text = await locator.text_content()
+                    if text:
+                        result["expire"] = text.split(":", 1)[1].strip()
+                except:
+                    result["expire"] = None
+
             else:
                 screenshot = f"login_failed_{email.replace('@', '_')}.png"
                 await page.screenshot(path=screenshot, full_page=True)
                 await tg_notify_photo(screenshot, caption=f"❌ 登录失败: {email}, URL: {current_url}")
+
         except Exception as e:
             screenshot = f"error_{email.replace('@', '_')}.png"
             await page.screenshot(path=screenshot, full_page=True)
@@ -117,7 +126,8 @@ async def main():
     ]
     for r in results:
         status = "✅ 成功" if r["success"] else "❌ 失败"
-        msg_lines.append(f"{r['email']}: {status}")
+        expire_info = f" (过期时间: {r['expire']})" if r.get("expire") else ""
+        msg_lines.append(f"{r['email']}: {status}{expire_info}")
 
     await tg_notify("\n".join(msg_lines))
     print("\n".join(msg_lines))
