@@ -49,9 +49,9 @@ async def login_one(email, password):
 
         try:
             await page.goto(LOGIN_URL)
-            await page.wait_for_selector('input[name="email"]')
+            await page.wait_for_selector('input[name="Email Address"]')
 
-            await page.fill('input[name="email"]', email)
+            await page.fill('input[name="Email Address"]', email)
             await page.fill('input[name="password"]', password)
             await page.click('button[type="submit"]')
             await page.wait_for_timeout(5000)
