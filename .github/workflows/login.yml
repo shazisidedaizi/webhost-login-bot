@@ -1,13 +1,15 @@
-name: Auto Login WebhostMost
+name: Auto Login Webhostmost
 
 on:
   schedule:
-    - cron: "0 0 */10 * *"  # 每10天执行一次 (UTC 00:00)
-  workflow_dispatch:  # 允许手动触发
+    # 每10天执行一次（UTC 5点，即北京时间13点）
+    - cron: '0 5 */10 * *'
+  workflow_dispatch:  # 支持手动运行
 
 jobs:
-  login:
+  auto-login:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -15,17 +17,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install playwright aiohttp
           playwright install chromium
 
       - name: Run login script
         env:
-          WEBHOST_EMAIL: ${{ secrets.WEBHOST_EMAIL }}
-          WEBHOST_PASSWORD: ${{ secrets.WEBHOST_PASSWORD }}
+          LOGIN_EMAIL: ${{ secrets.LOGIN_EMAIL }}
+          LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
         run: python main.py
