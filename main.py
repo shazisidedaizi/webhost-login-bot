@@ -52,8 +52,8 @@ async def login_one(email, password):
             await page.wait_for_selector('input[name="Email Address"]')
 
             await page.fill('input[name="Email Address"]', email)
-            await page.fill('input[name="password"]', password)
-            await page.click('button[type="submit"]')
+            await page.fill('input[name="Password"]', password)
+           await page.locator('button', has_text="Login").click()
             await page.wait_for_timeout(5000)
 
             current_url = page.url
