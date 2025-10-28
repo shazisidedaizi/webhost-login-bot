@@ -116,7 +116,7 @@ async def main():
     end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     msg_lines = [
-        f"🕑 登录任务完成",
+        f"🕑 webhost 登录任务完成",
         f"开始时间: {start_time}",
         f"结束时间: {end_time}",
         f"总账号数: {len(results)}",
