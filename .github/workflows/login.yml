@@ -2,8 +2,7 @@ name: Auto Login Webhostmost
 
 on:
   schedule:
-    # 每10天执行一次（UTC 5点，即北京时间13点）
-    - cron: '0 5 */10 * *'
+    - cron: '11 5 */10 * *'   # 每10天 UTC 5点11分
   workflow_dispatch:  # 支持手动运行
 
 jobs:
